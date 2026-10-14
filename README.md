@@ -1,5 +1,9 @@
 # THEARCHITECT_MAX — Projects Displays
 
+## Universal Video Intelligence Platform - 14 October 2026
+
+TA-IP-101 / Ophelia now distinguishes the current v0.9.8 main from the unmerged v0.9.9 candidate. R28 records a source-pinned, user-operated live YouTube PASS for five scenarios in each official Chrome and Edge browser; accessibility, privacy, security, performance and durability gates remain open. The profile, display, factsheet and source register are refreshed. Existing price references and assurance grades are retained. Read [the dated status update](docs/UVIP_STATUS_UPDATE_2026-10-14.md).
+
 One maintained exhibition for **105 individually scoped software IP assets**. Each project has its own product display, two-page PDF factsheet and editable product brief. Canonical TA-IP references and titles match the existing MyProjects hub.
 
 **[Open the exhibition](https://thearchitect-max.github.io/MyProjects/displays/)** · **[Return to the main hub](https://thearchitect-max.github.io/MyProjects/)**
