@@ -1,5 +1,11 @@
 # THEARCHITECT_MAX — Projects Displays
 
+## Complete source and financial-reference review - 16 October 2026
+
+All 105 displays, briefs and two-page factsheets now disclose their individual cost-evidence status and retained financial reference. The collection links to each project once. Method and source pages explain the WIPO, Knab and limited Upwork context, missing cost budgets and correlated internal scenarios. Asking amounts are unchanged. See the [complete review](https://github.com/TheArchitect-max/MyProjects/blob/main/docs/MULTISOURCE_VALUATION_REVIEW_2026-10-16.md).
+
+The records below describe preceding publication states.
+
 ## Complete directory update - 16 October 2026
 
 All 107 repositories and 105 project profiles were checked. Three repository renames, the AEGIS Vision product brand, five canonical route migrations, current main versions and separate development candidates are synchronized with all 105 displays, briefs and factsheets. Existing individual prices, qualifications and stable TA-IP references retain their dated scope. Read [the current update](docs/PORTFOLIO_UPDATE_2026-10-16.md).

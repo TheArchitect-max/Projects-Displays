@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Validate all exhibition links and their canonical hub correspondence offline."""
 from pathlib import Path
+from collections import Counter
 from html.parser import HTMLParser
 from urllib.parse import urljoin, urlparse, unquote
 import argparse, csv, hashlib, json
@@ -27,6 +28,11 @@ def validate(hub):
     sites = json.loads((hub / 'assets/public-sites.json').read_text())
     att = json.loads((hub / 'assets/public-attestation.json').read_text())
     values = json.loads((hub / 'assets/valuation-register.json').read_text())
+    # The hub renders its profile sections in JS. Use anchors extracted by its
+    # actual render functions rather than treating an empty HTML shell as content.
+    rendering = json.loads((hub / 'docs/MULTISOURCE_RENDERING_VALIDATION_2026-10-16.json').read_text())
+    assert rendering['result'] == 'PASS' and rendering['individualFinancialReviews'] == 105
+    rendered_anchors = rendering['renderedPageAnchors']
     by_ref = {p['ref']:p for p in identities['projects']}
     price_by_ref = {p['ref']:p for p in values['updates']}
     site_by_ref = {p['ref']:p for p in sites['sites']}
@@ -35,6 +41,9 @@ def validate(hub):
     assert len({p['slug'] for p in mapping['projects']}) == len({p['displaySlug'] for p in mapping['projects']}) == 105
     assert {'MyProjects','Projects-Displays'} <= set(identities['scope']['excludedRepositories'])
     pages = {p.relative_to(source).as_posix():Page(p.read_text()) for p in source.rglob('*.html')}
+    destinations = Counter(urlparse(urljoin(mapping['displayBaseUrl'], link)).path.removesuffix('index.html').rstrip('/')
+                           for link in pages['index.html'].links if 'products/' in link)
+    assert len(destinations) == 105 and set(destinations.values()) == {1}, 'Duplicate display collection destinations'
     local_link_count = 0
     for rel, page in pages.items():
         for link in page.links:
@@ -47,7 +56,8 @@ def validate(hub):
             local_link_count += 1
             if url.fragment:
                 target_page = Page(target.read_text())
-                assert unquote(url.fragment) in target_page.ids, (rel, link, 'missing fragment')
+                anchors = target_page.ids | set(rendered_anchors.get(target.relative_to(hub).as_posix(), []))
+                assert unquote(url.fragment) in anchors, (rel, link, 'missing fragment')
     for p in mapping['projects']:
         identity = by_ref[p['ref']]
         assert p['slug'] == identity['slug'] and p['title'] == identity['title']
@@ -79,7 +89,7 @@ def validate(hub):
     assert not list(source.glob('.github/workflows/*'))
     return {'projectsMatched':105,'pricesMatched':105,'productDisplays':105,
             'factsheets':105,'editableBriefs':105,'projectProfilesLinked':105,
-            'hubReturnButtonsChecked':210,'exhibitPagesChecked':len(pages),
+            'hubReturnButtonsChecked':210,'uniqueCollectionSiteLinks':105,'duplicateCollectionSiteLinks':0,'exhibitPagesChecked':len(pages),
             'internalLinksAndFragmentsChecked':local_link_count,'mirroredFilesChecked':mirrored,
             'directoryDigestsPassed':True,'missingTargets':0,'workflowFilesAdded':0}
 
