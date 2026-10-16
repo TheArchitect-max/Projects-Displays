@@ -1,5 +1,13 @@
 # THEARCHITECT_MAX — Projects Displays
 
+## Implemented development value correction - 16 October 2026
+
+Nine concrete source-bound increments now have separate work budgets and revised seller asking references. Recreation increments total EUR 645,000; applying the previous project-specific asking/cost proportions changes asking references by EUR 146,000. Frozen MARP v0.6.3 and EIOP v6.4.0 development snapshots are explicitly included without merging. Portfolio asking reference: EUR 24,647,500. Recreation references: EUR 105,030,000. The other 96 individual amounts and all qualification grades are retained. These are analyst cost/asking assumptions, not independently established market gains.
+
+Review the [current financial references](https://thearchitect-max.github.io/MyProjects/valuation.html).
+
+The same-day records below describe earlier publication states.
+
 ## Complete source and financial-reference review - 16 October 2026
 
 All 105 displays, briefs and two-page factsheets now disclose their individual cost-evidence status and retained financial reference. The collection links to each project once. Method and source pages explain the WIPO, Knab and limited Upwork context, missing cost budgets and correlated internal scenarios. Asking amounts are unchanged. See the [complete review](https://github.com/TheArchitect-max/MyProjects/blob/main/docs/MULTISOURCE_VALUATION_REVIEW_2026-10-16.md).

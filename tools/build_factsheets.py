@@ -2,7 +2,7 @@
 """Build the two-page downloadable factsheets from the current editable briefs."""
 from pathlib import Path
 from html import escape
-import csv, json, re
+import argparse, csv, json, re
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_LEFT
 from reportlab.lib.styles import ParagraphStyle
@@ -25,6 +25,9 @@ def sections(text):
     return {parts[i].strip():parts[i+1].strip() for i in range(1,len(parts),2)}
 
 def main():
+    parser=argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--refs',nargs='+',help='Regenerate only the specified canonical project references')
+    args=parser.parse_args()
     fonts=Path('/usr/share/fonts/truetype/dejavu')
     pdfmetrics.registerFont(TTFont('FactSans',str(fonts/'DejaVuSans.ttf')))
     pdfmetrics.registerFont(TTFont('FactSansBold',str(fonts/'DejaVuSans-Bold.ttf')))
@@ -45,6 +48,7 @@ def main():
         canvas.drawRightString(A4[0]-43,38,str(doc.page));canvas.restoreState()
     generated=[]
     for m in mapping['projects']:
+        if args.refs and m['ref'] not in args.refs:continue
         row=rows[m['ref']];folder=ROOT/m['productPage'];folder=folder.parent
         text=(folder/'product-brief.md').read_text();sec=sections(text)
         intro=text.split('Buyer-facing edition:',1)[1].split('\n\n',1)[1].split('\n## ',1)[0].strip()
@@ -64,7 +68,7 @@ def main():
         story+=blocks(sec['Status and limitations'])
         story+=[p('Individual financial-reference review',h2)]
         story+=blocks(sec['Individual financial-reference review'].split('\n\n')[0],small)
-        story+=[p('Commercial and delivery boundary',h2),p('Amounts are retained seller assumptions, not expenditure, a contractor quotation or independent market/income value. AS IS acquisition requires a written agreement defining first-party rights, exact delivery and acceptance. Third-party rights retain their own terms. Future development, hosting, support, customer content and credentials are separately scoped or excluded.',small),p('Source basis',h2),p(m['ref']+'-P: current documentation. '+m['ref']+'-C: financial-reference review, 16 October 2026. '+m['ref']+'-A: retained dated handover assessment. Shared WIPO, Knab and limited Upwork sources provide method/rate context, not asset appraisals. Product tests were not rerun.',small)]
+        story+=[p('Commercial and delivery boundary',h2),p('Amounts are seller model estimates, not expenditure, a contractor quotation or independent market/income value. AS IS acquisition requires a written agreement defining first-party rights, exact delivery and acceptance. Third-party rights retain their own terms. Future development, hosting, support, customer content and credentials are separately scoped or excluded.',small),p('Source basis',h2),p(m['ref']+'-P: current documentation. '+m['ref']+'-C: financial-reference review, 16 October 2026. '+m['ref']+'-A: retained dated handover assessment. Shared WIPO, Knab and limited Upwork sources provide method/rate context, not asset appraisals. Product tests were not rerun.',small)]
         output=folder/'factsheet.pdf'
         SimpleDocTemplate(str(output),pagesize=A4,rightMargin=43,leftMargin=43,topMargin=43,bottomMargin=65,title=m['title']+' - '+m['ref'],author='THEARCHITECT_MAX',pageCompression=1).build(story,onFirstPage=footer,onLaterPages=footer)
         count=len(PdfReader(output).pages)

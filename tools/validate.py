@@ -30,7 +30,9 @@ def validate(hub):
     values = json.loads((hub / 'assets/valuation-register.json').read_text())
     # The hub renders its profile sections in JS. Use anchors extracted by its
     # actual render functions rather than treating an empty HTML shell as content.
-    rendering = json.loads((hub / 'docs/MULTISOURCE_RENDERING_VALIDATION_2026-10-16.json').read_text())
+    report = hub / 'docs/DEVELOPMENT_VALUE_RENDERING_VALIDATION_2026-10-16.json'
+    if not report.is_file(): report = hub / 'docs/MULTISOURCE_RENDERING_VALIDATION_2026-10-16.json'
+    rendering = json.loads(report.read_text())
     assert rendering['result'] == 'PASS' and rendering['individualFinancialReviews'] == 105
     rendered_anchors = rendering['renderedPageAnchors']
     by_ref = {p['ref']:p for p in identities['projects']}
