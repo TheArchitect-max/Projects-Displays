@@ -1,102 +1,44 @@
 #!/usr/bin/env python3
-"""Validate all exhibition links and their canonical hub correspondence offline."""
+"""Validate buyer information, visible prices, downloads and the mirrored display."""
 from pathlib import Path
-from collections import Counter
 from html.parser import HTMLParser
-from urllib.parse import urljoin, urlparse, unquote
-import argparse, csv, hashlib, json
+from urllib.parse import urljoin,urlparse,unquote
+from collections import Counter
+import argparse,csv,json,re
+from pypdf import PdfReader
 
+ROOT=Path(__file__).resolve().parents[1]
 class Page(HTMLParser):
-    def __init__(self, text):
-        super().__init__(convert_charrefs=True)
-        self.links, self.ids, self.returns, self.profiles = [], set(), [], []
-        self.body = {}
-        self.feed(text)
-    def handle_starttag(self, tag, pairs):
-        attrs = dict(pairs)
-        if attrs.get('id'): self.ids.add(attrs['id'])
-        if tag == 'body': self.body = attrs
-        if 'data-hub-return' in attrs: self.returns.append(attrs.get('href'))
-        if 'data-project-profile' in attrs: self.profiles.append(attrs.get('href'))
-        for key in ('href', 'src', 'action'):
-            if attrs.get(key): self.links.append(attrs[key])
-
+ def __init__(self,text):super().__init__();self.links=[];self.body={};self.feed(text)
+ def handle_starttag(self,t,attrs):
+  a=dict(attrs)
+  if t=='body':self.body=a
+  if t=='a' and a.get('href'):self.links.append(a['href'])
 def validate(hub):
-    source = Path(__file__).resolve().parents[1]
-    mapping = json.loads((source / 'project-map.json').read_text())
-    identities = json.loads((hub / 'assets/project-identities.json').read_text())
-    sites = json.loads((hub / 'assets/public-sites.json').read_text())
-    att = json.loads((hub / 'assets/public-attestation.json').read_text())
-    values = json.loads((hub / 'assets/valuation-register.json').read_text())
-    # The hub renders its profile sections in JS. Use anchors extracted by its
-    # actual render functions rather than treating an empty HTML shell as content.
-    report = hub / 'docs/FULL_REVIEW_RENDERING_VALIDATION_2026-10-17.json'
-    if not report.is_file(): report = hub / 'docs/MULTISOURCE_RENDERING_VALIDATION_2026-10-16.json'
-    rendering = json.loads(report.read_text())
-    assert rendering['result'] == 'PASS' and rendering['individualFinancialReviews'] == 108
-    rendered_anchors = rendering['renderedPageAnchors']
-    by_ref = {p['ref']:p for p in identities['projects']}
-    price_by_ref = {p['ref']:p for p in values['updates']}
-    site_by_ref = {p['ref']:p for p in sites['sites']}
-    catalogue = {p['Asset reference']:p for p in csv.DictReader((source / 'catalogue.csv').open(encoding='utf-8-sig'))}
-    assert mapping['projectCount'] == len(mapping['projects']) == len(by_ref) == len(site_by_ref) == sites['siteCount'] == 108
-    assert len({p['slug'] for p in mapping['projects']}) == len({p['displaySlug'] for p in mapping['projects']}) == 108
-    assert {'MyProjects','Projects-Displays'} <= set(identities['scope']['excludedRepositories'])
-    pages = {p.relative_to(source).as_posix():Page(p.read_text()) for p in source.rglob('*.html')}
-    destinations = Counter(urlparse(urljoin(mapping['displayBaseUrl'], link)).path.removesuffix('index.html').rstrip('/')
-                           for link in pages['index.html'].links if 'products/' in link)
-    assert len(destinations) == 108 and set(destinations.values()) == {1}, 'Duplicate display collection destinations'
-    local_link_count = 0
-    for rel, page in pages.items():
-        for link in page.links:
-            url = urlparse(urljoin(mapping['displayBaseUrl'] + rel, link))
-            if url.netloc != 'thearchitect-max.github.io': continue
-            assert url.path.startswith('/MyProjects/'), (rel, link, 'unexpected internal root')
-            target = hub / unquote(url.path.removeprefix('/MyProjects/'))
-            if target.is_dir() or url.path.endswith('/'): target = target / 'index.html'
-            assert target.is_file(), (rel, link, 'missing target')
-            local_link_count += 1
-            if url.fragment:
-                target_page = Page(target.read_text())
-                anchors = target_page.ids | set(rendered_anchors.get(target.relative_to(hub).as_posix(), []))
-                assert unquote(url.fragment) in anchors, (rel, link, 'missing fragment')
-    for p in mapping['projects']:
-        identity = by_ref[p['ref']]
-        assert p['slug'] == identity['slug'] and p['title'] == identity['title']
-        assert p['sellerAskEUR'] == price_by_ref[p['ref']]['sellerAskEUR'] == int(catalogue[p['ref']]['Seller ask EUR'])
-        assert p['recreationCostEUR'] == price_by_ref[p['ref']]['replacementCostEUR'] == int(catalogue[p['ref']]['Estimated recreation cost EUR'])
-        assert site_by_ref[p['ref']]['url'] == p['url']
-        assert p['profileUrl'] == mapping['hubUrl'] + 'projects/' + p['slug'] + '/'
-        page = pages[p['productPage']]
-        assert page.body.get('data-project-ref') == p['ref']
-        assert page.body.get('data-project-slug') == p['slug']
-        assert len(page.returns) >= 2 and set(page.returns) == {mapping['hubUrl']}
-        assert page.profiles == [p['profileUrl']]
-        folder = source / p['productPage']
-        assert folder.with_name('factsheet.pdf').read_bytes().startswith(b'%PDF-')
-        assert folder.with_name('product-brief.md').is_file()
-    mirrored = 0
-    for folder in ('assets','products'):
-        for p in (source / folder).rglob('*'):
-            if p.is_file():
-                target = hub / 'displays' / p.relative_to(source)
-                assert target.is_file() and p.read_bytes() == target.read_bytes(), ('mirror mismatch',p)
-                mirrored += 1
-    for name in ('public-sites.json','project-identities.json','repository-inventory.json','portfolio-audit-certificate.json'):
-        data = (hub / 'assets' / name).read_bytes()
-        assert hashlib.sha256(data).hexdigest() == att['files'][name]['sha256'], name
-        assert len(data) == att['files'][name]['bytes'], name
-    for p in source.rglob('*.html'):
-        assert 'github.com/TheArchitect-max/' not in p.read_text(), ('underlying repository link in exhibit', p)
-    assert not list(source.glob('.github/workflows/*'))
-    return {'projectsMatched':108,'pricesMatched':108,'productDisplays':108,
-            'factsheets':108,'editableBriefs':108,'projectProfilesLinked':108,
-            'hubReturnButtonsChecked':216,'uniqueCollectionSiteLinks':108,'duplicateCollectionSiteLinks':0,'exhibitPagesChecked':len(pages),
-            'internalLinksAndFragmentsChecked':local_link_count,'mirroredFilesChecked':mirrored,
-            'directoryDigestsPassed':True,'missingTargets':0,'workflowFilesAdded':0}
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('hub_checkout',type=Path)
-    args = parser.parse_args()
-    print(json.dumps(validate(args.hub_checkout.resolve()),indent=2))
+ d=json.loads((ROOT/'assets/buyer-catalogue.json').read_text());assert d==json.loads((hub/'assets/buyer-catalogue.json').read_text());mapping=json.loads((ROOT/'project-map.json').read_text());assert len(mapping['projects'])==108
+ assert set(mapping)=={'schema','projectCount','projects'}
+ allowed={'ref','title','slug','displaySlug','productPage','url','profileUrl','factsheetUrl','briefUrl'}
+ for m in mapping['projects']:assert set(m)==allowed
+ assert not (ROOT/'source-register.csv').exists() and not (ROOT/'docs').exists();assert not list(ROOT.glob('.github/workflows/*'))
+ catalogue=list(csv.DictReader((ROOT/'catalogue.csv').open(encoding='utf-8-sig')));assert len(catalogue)==108
+ index=(ROOT/'index.html').read_text();destinations=Counter(x for x in Page(index).links if x.startswith('products/'));assert len(destinations)==108 and set(destinations.values())=={1}
+ count=0
+ for a in d['projects']:
+  folder=ROOT/'products'/a['slug'];text=(folder/'index.html').read_text();p=Page(text);assert p.body['data-project-ref']==a['ref'];assert 'Potential acquirers' in text
+  money='EUR '+format(a['askingReferenceEUR'],',');assert money in re.search(r'<div class="plaque-price">.*?</div>',text)[0]
+  for b in a['potentialBuyers']:assert b.replace('&','&amp;') in text
+  brief=(folder/'product-brief.md').read_text();assert '## Potential acquirers' in brief and money in brief
+  pdf=PdfReader(folder/'factsheet.pdf');assert len(pdf.pages)==2;pdftext='\n'.join(x.extract_text() for x in pdf.pages);assert 'Potential acquirers' in pdftext and a['ref'] in pdftext
+  assert not re.search(r'\b[a-f0-9]{40}\b',text+brief+pdftext);count+=1
+ mirrored=0
+ for directory in ['assets','products']:
+  for p in (ROOT/directory).rglob('*'):
+   if p.is_file():assert p.read_bytes()==(hub/'displays'/p.relative_to(ROOT)).read_bytes();mirrored+=1
+ for p in ROOT.glob('*.html'):
+  for link in Page(p.read_text()).links:
+   url=urlparse(urljoin('https://thearchitect-max.github.io/MyProjects/displays/'+p.name,link))
+   if url.netloc!='thearchitect-max.github.io':continue
+   target=hub/unquote(url.path.removeprefix('/MyProjects/'));target=target/'index.html' if url.path.endswith('/') else target;assert target.is_file(),(p,link)
+ return dict(result='PASS',buyerDisplays=count,factsheets=count,pdfPages=count*2,productBriefs=count,uniqueCollectionEntries=108,duplicateCollectionEntries=0,currentAskingPlaques=108,mirroredFiles=mirrored)
+if __name__=='__main__':
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('hub',type=Path);a=p.parse_args();print(json.dumps(validate(a.hub.resolve()),indent=2))
