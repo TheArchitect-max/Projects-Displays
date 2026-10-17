@@ -2,6 +2,15 @@
 from html import escape
 
 HUB='https://thearchitect-max.github.io/MyProjects/'
+def evaluation_sources_html(data):
+ text='<section><h2>Sources behind the evaluation</h2><p>'+escape(data['scope'])+'</p><a class="button" href="'+HUB+'sources.html">Complete source register and per-asset mapping ↗</a></section>'
+ for category in data['categories']:
+  text+='<section id="'+category['id']+'"><h2>'+escape(category['title'])+'</h2><p>'+escape(category['description'])+'</p>'
+  for source in data['externalSources']:
+   if source['categoryId']!=category['id']:continue
+   text+='<article class="evaluation-source" id="source-'+source['id']+'" data-evaluation-source="'+source['id']+'"><h3><a href="'+escape(source['url'],quote=True)+'" target="_blank" rel="noopener">'+escape(source['publisher']+' · '+source['title'])+' ↗</a></h3><p class="source-address"><a href="'+escape(source['url'],quote=True)+'">'+escape(source['url'])+'</a></p><dl class="source-meaning"><div><dt>Source finding</dt><dd>'+escape(source['finding'])+'</dd></div><div><dt>Application in the evaluation</dt><dd>'+escape(source['application'])+'</dd></div><div><dt>Limit of use</dt><dd>'+escape(source['useLimit'])+'</dd></div></dl><p class="small">Reference basis '+source['referenceBasisDate']+' · Source checked '+source['checkedOn']+' · '+escape(source['access'])+'.</p></article>'
+  text+='</section>'
+ return text+'<section><h2>Project-specific evidence and inputs</h2><p>Product documentation, version-specific qualification, seller rights/component records and disclosed engineering inputs support the per-project assessment. External sources provide contextual methods and rates.</p><div class="buyer-info-actions"><a class="button" href="'+HUB+'sources.html#assessment-records">Assessment records ↗</a><a class="button secondary" href="'+HUB+'connections.html">Connections ↗</a><a class="button secondary" href="assets/evaluation-sources.json" download>Download source register ↓</a></div></section>'
 def ul(items):return '<ul>'+''.join('<li>'+escape(s)+'</li>' for s in items)+'</ul>'
 def criteria(p):
  return '<div class="price-table-wrap"><table class="price-table buyer-criteria"><thead><tr><th>Acquisition criterion</th><th>Profile</th><th>Meaning for your review</th></tr></thead><tbody>'+''.join('<tr><th>'+escape(c['label'])+'</th><td>'+escape(c['grade'])+'</td><td>'+escape(c['criterion'])+'</td></tr>' for c in p['assessmentCriteria'])+'</tbody></table></div>'

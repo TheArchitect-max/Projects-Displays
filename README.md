@@ -19,3 +19,7 @@ USD amounts accompany EUR acquisition and recreation references. Preserve the da
 The public catalogue includes all 108 asset identities and financial references. `assets/buyer-dossiers.json` supplies the identified product edition, separately scoped development edition, five acquisition criteria, conditions, rights/component indicators and qualification objectives. `assets/application-combinations.json` supplies 33 proposed applications involving 81 distinct assets; these are not delivered integrations or additional IP assets. The VFX platform remains standalone.
 
 Public pages and product briefs describe the existing work and acquisition perimeter. Publication history, internal review logs and private identifiers are outside these public datasets. Source records retain their original evidence basis; rebuilding the showroom does not rerun or upgrade the underlying products. The original style and music assets remain in place.
+
+## Connections and evaluation references
+
+The primary navigation links to `connections.html` and the separate `sources.html` evaluation register. Connections supports search, application-area and participating-asset filters. `assets/evaluation-sources.json` attributes the nine documented external references and six assessment-record categories, while retaining each source’s application and limits. The financial source register and all project prices remain in `assets/pricing-catalogue.json`.
