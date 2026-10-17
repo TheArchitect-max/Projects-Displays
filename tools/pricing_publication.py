@@ -1,0 +1,53 @@
+"""Present the approved public prices and their contextual sources."""
+from pathlib import Path
+from html import escape
+import json,re
+
+HUB='https://thearchitect-max.github.io/MyProjects/'
+def money(n):return 'EUR '+format(n,',')
+def label(key):return re.sub(r'([a-z])([A-Z])',r'\1 \2',key).removesuffix('EUR').strip().capitalize()
+def record(asset,data):return next(p for p in data['projects'] if p['ref']==asset['ref'])
+def usd(n,data):return 'USD '+format(int(n*data['displayCurrency']['rate']+0.5),',')
+def grid(values,data):
+ return '<dl class="restored-price-grid">'+''.join('<div data-price-field="'+f['key']+'"><dt>'+escape(f['label'])+'</dt><dd><strong>'+money(values[f['key']])+'</strong><small class="price-usd">≈ '+usd(values[f['key']],data)+'</small></dd><small>'+escape(f['description'])+'</small></div>' for f in data['fields'])+'</dl>'
+def sources(ids,data):
+ rows=[]
+ for id_ in ids:
+  s=next(s for s in data['sources'] if s['id']==id_)
+  rows.append('<li><a href="'+escape(s['url'],quote=True)+'" target="_blank" rel="noopener">'+escape(s['publisher']+' · '+s['title'])+' ↗</a><small>'+escape(s['application'])+'</small></li>')
+ return '<ul class="price-source-links">'+''.join(rows)+'</ul>'
+def future_html(p,data):
+ f=p['futureReference'];n=f.get('milestoneConditionedEconomicReferenceEUR')
+ content='<p class="conditional-value">'+money(n)+' <small>≈ '+usd(n,data)+'</small></p><p>'+escape(f.get('targetMilestone','Next maturity gate must be evidenced.'))+'</p><p>Model change: '+money(f['sensitivityDeltaEUR'])+'. '+escape(f.get('acceptanceRule','Conditional model sensitivity only.'))+'</p>' if n is not None else '<p>Not established. '+escape(f.get('reason','No separately supported next-stage reference is available.'))+'</p>'
+ return '<div class="price-cost-basis"><h3>Milestone-conditioned economic reference</h3>'+content+'<p>A conditional maturity sensitivity, not a current asking price, forecast or established market value.</p></div>'
+def numeric_rows(value,prefix=''):
+ rows=[]
+ for k,v in value.items():
+  if isinstance(v,dict):rows+=numeric_rows(v,prefix+label(k)+' / ')
+  elif isinstance(v,(int,float)) and not isinstance(v,bool):rows.append((prefix+label(k),money(v) if k.endswith('EUR') else str(v)))
+ return rows
+def budgets_html(p):
+ rows=[]
+ for b in p['costBudgets']:
+  rows.append('<article class="price-budget-item"><h3>'+escape(b['kind'])+'</h3><p>'+escape(b.get('scope','Retained scoped reproduction budget.'))+'</p><dl class="price-budget-values">'+''.join('<div><dt>'+escape(k)+'</dt><dd>'+escape(v)+'</dd></div>' for k,v in numeric_rows(b))+'</dl><p class="small">'+escape(b.get('boundary','Seller assumptions for scoped reproduction, not actual spending.'))+'</p></article>')
+ if p.get('costSensitivity'):rows.append('<article class="price-budget-item"><h3>Cost sensitivity</h3><dl class="price-budget-values">'+''.join('<div><dt>'+escape(k)+'</dt><dd>'+escape(v)+'</dd></div>' for k,v in numeric_rows(p['costSensitivity']))+'</dl><p>'+escape(p['costSensitivity']['sensitivityBasis'])+'</p></article>')
+ return '<details class="price-budget"><summary>Cost assumptions and scoped work budgets</summary><p class="small">Historical scope and incremental budgets can overlap. They are not added to calculate a new price.</p>'+''.join(rows)+'</details>' if rows else ''
+def full_html(asset,data):
+ p=record(asset,data);fx=data['displayCurrency']
+ return '<p>Price basis: '+escape(p['basisDate'])+'. All recorded EUR amounts are retained. Market value is not established.</p>'+grid(p['values'],data)+future_html(p,data)+'<div class="price-cost-basis"><h3>Cost basis</h3><p>'+escape(p['costBasisNote'])+'</p></div>'+budgets_html(p)+'<h3>Sources and application</h3><p>Project prices are seller choices and cost-model outputs. External publishers provide method and rate context, not individual asset valuations.</p>'+sources(p['sourceIds'],data)+'<p class="small">Indicative USD conversion: EUR 1 = USD '+str(fx['rate'])+'; ECB '+escape(fx['date'])+'. EUR is authoritative.</p><a class="button secondary" href="'+HUB+'valuation.html#methodology">Full price method & source register ↗</a>'
+def brief_prices(asset,data):
+ p=record(asset,data);text='## Complete prices and economic references\n\nBasis: '+p['basisDate']+'. All amounts in EUR. Market value is not established.\n\n'
+ text+='| Reference | EUR |\n| --- | ---: |\n'+''.join('| '+f['label']+' | '+format(p['values'][f['key']],',')+' |\n' for f in data['fields'])+'\n'
+ text+='\n'.join('- '+f['label']+': '+f['description'] for f in data['fields'])+'\n\n'
+ f=p['futureReference'];n=f.get('milestoneConditionedEconomicReferenceEUR')
+ text+='Milestone-conditioned reference: '+(money(n)+'; model change '+money(f['sensitivityDeltaEUR'])+'. '+f.get('targetMilestone','') if n is not None else 'Not established. '+f.get('reason',''))+'\n\nThis is a conditional model sensitivity, not a current asking price, forecast or market value.\n\n'
+ text+='### Cost basis\n\n'+p['costBasisNote']+'\n\n'
+ for b in p['costBudgets']:
+  text+='#### '+b['kind']+'\n\n'+b.get('scope','Retained scoped reproduction budget.')+'\n\n'+''.join('- '+k+': '+v+'\n' for k,v in numeric_rows(b))+'\n'
+  text+=b.get('boundary','Seller assumptions for scoped reproduction, not actual spending.')+'\n\n'
+ if p.get('costSensitivity'):text+='#### Cost sensitivity\n\n'+''.join('- '+k+': '+v+'\n' for k,v in numeric_rows(p['costSensitivity']))+'\n'+p['costSensitivity']['sensitivityBasis']+'\n\n'
+ text+='Historical budgets can overlap and are not added to calculate a new price.\n\n### Sources\n\nProject-specific prices are seller choices and model outputs; external publishers inform method, rates and currency only.\n\n'
+ for id_ in p['sourceIds']:
+  s=next(s for s in data['sources'] if s['id']==id_);text+='- ['+s['publisher']+' - '+s['title']+']('+s['url']+'): '+s['application']+'\n'
+ fx=data['displayCurrency'];text+='\nIndicative USD conversion: EUR 1 = USD '+str(fx['rate'])+'; ECB '+fx['date']+'. EUR remains authoritative.\n\nFull pricing method and source register: '+HUB+'valuation.html#methodology\n\n'
+ return text

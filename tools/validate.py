@@ -15,6 +15,7 @@ class Page(HTMLParser):
   if t=='body':self.body=a
   if t=='a' and a.get('href'):self.links.append(a['href'])
 def validate(hub):
+ prices=json.loads((ROOT/'assets/pricing-catalogue.json').read_text());assert prices==json.loads((hub/'assets/pricing-catalogue.json').read_text());
  d=json.loads((ROOT/'assets/buyer-catalogue.json').read_text());assert d==json.loads((hub/'assets/buyer-catalogue.json').read_text());mapping=json.loads((ROOT/'project-map.json').read_text());assert len(mapping['projects'])==108
  assert set(mapping)=={'schema','projectCount','projects'}
  allowed={'ref','title','slug','displaySlug','productPage','url','profileUrl','factsheetUrl','briefUrl'}
@@ -28,7 +29,12 @@ def validate(hub):
   money='EUR '+format(a['askingReferenceEUR'],',');assert money in re.search(r'<div class="plaque-price">.*?</div>',text)[0]
   for b in a['potentialBuyers']:assert b.replace('&','&amp;') in text
   brief=(folder/'product-brief.md').read_text();assert '## Potential acquirers' in brief and money in brief
-  pdf=PdfReader(folder/'factsheet.pdf');assert len(pdf.pages)==2;pdftext='\n'.join(x.extract_text() for x in pdf.pages);assert 'Potential acquirers' in pdftext and a['ref'] in pdftext
+  pdf=PdfReader(folder/'factsheet.pdf');assert len(pdf.pages)==3;pdftext='\n'.join(x.extract_text() for x in pdf.pages);assert 'Potential acquirers' in pdftext and a['ref'] in pdftext and 'Prices & sources.' in pdftext
+  pr=next(x for x in prices['projects'] if x['ref']==a['ref'])
+  for field in prices['fields']:
+   expected=format(pr['values'][field['key']],',');assert expected in pdftext and expected in brief and expected in text,(a['ref'],field['key'])
+  for id_ in pr['sourceIds']:
+   url=next(x['url'] for x in prices['sources'] if x['id']==id_);assert url in text and url in brief
   assert not re.search(r'\b[a-f0-9]{40}\b',text+brief+pdftext);count+=1
  mirrored=0
  for directory in ['assets','products']:
@@ -39,6 +45,6 @@ def validate(hub):
    url=urlparse(urljoin('https://thearchitect-max.github.io/MyProjects/displays/'+p.name,link))
    if url.netloc!='thearchitect-max.github.io':continue
    target=hub/unquote(url.path.removeprefix('/MyProjects/'));target=target/'index.html' if url.path.endswith('/') else target;assert target.is_file(),(p,link)
- return dict(result='PASS',buyerDisplays=count,factsheets=count,pdfPages=count*2,productBriefs=count,uniqueCollectionEntries=108,duplicateCollectionEntries=0,currentAskingPlaques=108,mirroredFiles=mirrored)
+ return dict(result='PASS',buyerDisplays=count,factsheets=count,pdfPages=count*3,productBriefs=count,uniqueCollectionEntries=108,duplicateCollectionEntries=0,currentAskingPlaques=108,mirroredFiles=mirrored)
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('hub',type=Path);a=p.parse_args();print(json.dumps(validate(a.hub.resolve()),indent=2))

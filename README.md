@@ -9,3 +9,5 @@ Maintain established project references and reference names. Asset descriptions 
 The website is an informational exhibition. It completes no purchase, payment or transfer of rights.
 
 © 2026 THEARCHITECT_MAX. First-party rights reserved.
+
+The approved public `assets/pricing-catalogue.json` restores all eight monetary references per asset, their assumptions, conditional maturity references and attributed sources. Preserve these prices and the buyer presentation together. The PDF factsheets contain three pages, including a dedicated prices and sources page.
