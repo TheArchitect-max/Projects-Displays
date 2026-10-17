@@ -30,22 +30,22 @@ def validate(hub):
     values = json.loads((hub / 'assets/valuation-register.json').read_text())
     # The hub renders its profile sections in JS. Use anchors extracted by its
     # actual render functions rather than treating an empty HTML shell as content.
-    report = hub / 'docs/DEVELOPMENT_VALUE_RENDERING_VALIDATION_2026-10-16.json'
+    report = hub / 'docs/FULL_REVIEW_RENDERING_VALIDATION_2026-10-17.json'
     if not report.is_file(): report = hub / 'docs/MULTISOURCE_RENDERING_VALIDATION_2026-10-16.json'
     rendering = json.loads(report.read_text())
-    assert rendering['result'] == 'PASS' and rendering['individualFinancialReviews'] == 105
+    assert rendering['result'] == 'PASS' and rendering['individualFinancialReviews'] == 108
     rendered_anchors = rendering['renderedPageAnchors']
     by_ref = {p['ref']:p for p in identities['projects']}
     price_by_ref = {p['ref']:p for p in values['updates']}
     site_by_ref = {p['ref']:p for p in sites['sites']}
     catalogue = {p['Asset reference']:p for p in csv.DictReader((source / 'catalogue.csv').open(encoding='utf-8-sig'))}
-    assert mapping['projectCount'] == len(mapping['projects']) == len(by_ref) == len(site_by_ref) == sites['siteCount'] == 105
-    assert len({p['slug'] for p in mapping['projects']}) == len({p['displaySlug'] for p in mapping['projects']}) == 105
+    assert mapping['projectCount'] == len(mapping['projects']) == len(by_ref) == len(site_by_ref) == sites['siteCount'] == 108
+    assert len({p['slug'] for p in mapping['projects']}) == len({p['displaySlug'] for p in mapping['projects']}) == 108
     assert {'MyProjects','Projects-Displays'} <= set(identities['scope']['excludedRepositories'])
     pages = {p.relative_to(source).as_posix():Page(p.read_text()) for p in source.rglob('*.html')}
     destinations = Counter(urlparse(urljoin(mapping['displayBaseUrl'], link)).path.removesuffix('index.html').rstrip('/')
                            for link in pages['index.html'].links if 'products/' in link)
-    assert len(destinations) == 105 and set(destinations.values()) == {1}, 'Duplicate display collection destinations'
+    assert len(destinations) == 108 and set(destinations.values()) == {1}, 'Duplicate display collection destinations'
     local_link_count = 0
     for rel, page in pages.items():
         for link in page.links:
@@ -89,9 +89,9 @@ def validate(hub):
     for p in source.rglob('*.html'):
         assert 'github.com/TheArchitect-max/' not in p.read_text(), ('underlying repository link in exhibit', p)
     assert not list(source.glob('.github/workflows/*'))
-    return {'projectsMatched':105,'pricesMatched':105,'productDisplays':105,
-            'factsheets':105,'editableBriefs':105,'projectProfilesLinked':105,
-            'hubReturnButtonsChecked':210,'uniqueCollectionSiteLinks':105,'duplicateCollectionSiteLinks':0,'exhibitPagesChecked':len(pages),
+    return {'projectsMatched':108,'pricesMatched':108,'productDisplays':108,
+            'factsheets':108,'editableBriefs':108,'projectProfilesLinked':108,
+            'hubReturnButtonsChecked':216,'uniqueCollectionSiteLinks':108,'duplicateCollectionSiteLinks':0,'exhibitPagesChecked':len(pages),
             'internalLinksAndFragmentsChecked':local_link_count,'mirroredFilesChecked':mirrored,
             'directoryDigestsPassed':True,'missingTargets':0,'workflowFilesAdded':0}
 

@@ -44,7 +44,7 @@ def main():
     def footer(canvas,doc):
         canvas.saveState();canvas.setStrokeColor(GOLD);canvas.line(43,52,A4[0]-43,52)
         canvas.setFillColor(GREY);canvas.setFont('FactSans',7)
-        canvas.drawString(43,38,'THEARCHITECT_MAX | PRIVATE SOFTWARE IP | 16 OCTOBER 2026')
+        canvas.drawString(43,38,'THEARCHITECT_MAX | PRIVATE SOFTWARE IP | 17 OCTOBER 2026')
         canvas.drawRightString(A4[0]-43,38,str(doc.page));canvas.restoreState()
     generated=[]
     for m in mapping['projects']:
@@ -52,7 +52,7 @@ def main():
         row=rows[m['ref']];folder=ROOT/m['productPage'];folder=folder.parent
         text=(folder/'product-brief.md').read_text();sec=sections(text)
         intro=text.split('Buyer-facing edition:',1)[1].split('\n\n',1)[1].split('\n## ',1)[0].strip()
-        story=[p(m['ref']+' / '+row['Reference alias']+' / INDEPENDENT IP ASSET',sub),p(m['title'],title),p(intro),p('Product overview',h2)]
+        story=[p(m['ref']+' / '+row['Reference alias']+' / INDEPENDENT IP ASSET',sub),p(m['title'].replace('Spatial-Computing','Spatial-\nComputing') if m['ref']=='TA-IP-108' else m['title'],title),p(intro),p('Product overview',h2)]
         story+=blocks(sec['Product overview'])
         story+=[p('Documented functions',h2)]
         story+=[p('• '+x.removeprefix('- ')) for x in sec['Documented functions'].splitlines() if x.startswith('- ')]
@@ -68,7 +68,7 @@ def main():
         story+=blocks(sec['Status and limitations'])
         story+=[p('Individual financial-reference review',h2)]
         story+=blocks(sec['Individual financial-reference review'].split('\n\n')[0],small)
-        story+=[p('Commercial and delivery boundary',h2),p('Amounts are seller model estimates, not expenditure, a contractor quotation or independent market/income value. AS IS acquisition requires a written agreement defining first-party rights, exact delivery and acceptance. Third-party rights retain their own terms. Future development, hosting, support, customer content and credentials are separately scoped or excluded.',small),p('Source basis',h2),p(m['ref']+'-P: current documentation. '+m['ref']+'-C: financial-reference review, 16 October 2026. '+m['ref']+'-A: retained dated handover assessment. Shared WIPO, Knab and limited Upwork sources provide method/rate context, not asset appraisals. Product tests were not rerun.',small)]
+        story+=[p('Commercial and delivery boundary',h2),p('Amounts are seller model estimates, not expenditure, a contractor quotation or independent market/income value. AS IS acquisition requires a written agreement defining first-party rights, exact delivery and acceptance. Third-party rights retain their own terms. Future development, hosting, support, customer content and credentials are separately scoped or excluded.',small),p('Source basis',h2),p(m['ref']+'-P: current documentation. '+m['ref']+'-C: financial-reference review, 17 October 2026. '+m['ref']+'-A: retained dated handover assessment. Shared WIPO, Knab and limited Upwork sources provide method/rate context, not asset appraisals. Local checks are disclosed per project; see the exact source receipt and retained qualification scope.',small)]
         output=folder/'factsheet.pdf'
         SimpleDocTemplate(str(output),pagesize=A4,rightMargin=43,leftMargin=43,topMargin=43,bottomMargin=65,title=m['title']+' - '+m['ref'],author='THEARCHITECT_MAX',pageCompression=1).build(story,onFirstPage=footer,onLaterPages=footer)
         count=len(PdfReader(output).pages)
