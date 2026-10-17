@@ -1,13 +1,16 @@
 """Present the approved public prices and their contextual sources."""
 from pathlib import Path
 from html import escape
-import json,re
+import json,re,math
+from decimal import Decimal,ROUND_HALF_UP
 
 HUB='https://thearchitect-max.github.io/MyProjects/'
 def money(n):return 'EUR '+format(n,',')
 def label(key):return re.sub(r'([a-z])([A-Z])',r'\1 \2',key).removesuffix('EUR').strip().capitalize()
 def record(asset,data):return next(p for p in data['projects'] if p['ref']==asset['ref'])
-def usd(n,data):return 'USD '+format(int(n*data['displayCurrency']['rate']+0.5),',')
+def usd_number(n,data):return int((Decimal(str(n))*Decimal(str(data['displayCurrency']['rate']))).quantize(Decimal(1),rounding=ROUND_HALF_UP))
+def usd(n,data):return 'USD '+format(usd_number(n,data),',')
+def pair(n,data):return '<strong>'+money(n)+'</strong><small class="price-usd" data-currency="USD">≈ '+usd(n,data)+'</small>'
 def grid(values,data):
  return '<dl class="restored-price-grid">'+''.join('<div data-price-field="'+f['key']+'"><dt>'+escape(f['label'])+'</dt><dd><strong>'+money(values[f['key']])+'</strong><small class="price-usd">≈ '+usd(values[f['key']],data)+'</small></dd><small>'+escape(f['description'])+'</small></div>' for f in data['fields'])+'</dl>'
 def sources(ids,data):
@@ -34,10 +37,11 @@ def budgets_html(p):
  return '<details class="price-budget"><summary>Cost assumptions and scoped work budgets</summary><p class="small">Historical scope and incremental budgets can overlap. They are not added to calculate a new price.</p>'+''.join(rows)+'</details>' if rows else ''
 def full_html(asset,data):
  p=record(asset,data);fx=data['displayCurrency']
- return '<p>Price basis: '+escape(p['basisDate'])+'. All recorded EUR amounts are retained. Market value is not established.</p>'+grid(p['values'],data)+future_html(p,data)+'<div class="price-cost-basis"><h3>Cost basis</h3><p>'+escape(p['costBasisNote'])+'</p></div>'+budgets_html(p)+'<h3>Sources and application</h3><p>Project prices are seller choices and cost-model outputs. External publishers provide method and rate context, not individual asset valuations.</p>'+sources(p['sourceIds'],data)+'<p class="small">Indicative USD conversion: EUR 1 = USD '+str(fx['rate'])+'; ECB '+escape(fx['date'])+'. EUR is authoritative.</p><a class="button secondary" href="'+HUB+'valuation.html#methodology">Full price method & source register ↗</a>'
+ return '<p>Price basis: '+escape(p['basisDate'])+'. All recorded EUR amounts are retained. Market value is not established.</p>'+grid(p['values'],data)+'<a class="calculation-link" href="'+asset['profileUrl']+'#calculation">View this asset’s calculation and validation ↗</a><p class="small">Four model outputs, eight USD conversions and portfolio totals are checked against the disclosed inputs. <a href="'+HUB+'proof.html">Run the complete calculation checks ↗</a></p>'+future_html(p,data)+'<div class="price-cost-basis"><h3>Cost basis</h3><p>'+escape(p['costBasisNote'])+'</p></div>'+budgets_html(p)+'<h3>Sources and application</h3><p>Project prices are seller choices and cost-model outputs. External publishers provide method and rate context, not individual asset valuations.</p>'+sources(p['sourceIds'],data)+'<p class="small">Indicative USD conversion: EUR 1 = USD '+str(fx['rate'])+'; ECB '+escape(fx['date'])+'. EUR is authoritative.</p><a class="button secondary" href="'+HUB+'valuation.html#methodology">Full price method & source register ↗</a>'
 def brief_prices(asset,data):
  p=record(asset,data);text='## Complete prices and economic references\n\nBasis: '+p['basisDate']+'. All amounts in EUR. Market value is not established.\n\n'
- text+='| Reference | EUR |\n| --- | ---: |\n'+''.join('| '+f['label']+' | '+format(p['values'][f['key']],',')+' |\n' for f in data['fields'])+'\n'
+ text+='| Reference | EUR | USD - indicative |\n| --- | ---: | ---: |\n'+''.join('| '+f['label']+' | '+format(p['values'][f['key']],',')+' | '+format(usd_number(p['values'][f['key']],data),',')+' |\n' for f in data['fields'])+'\n'
+ text+='USD = EUR × '+str(data['displayCurrency']['rate'])+', rounded half-up to whole USD. ECB date: '+data['displayCurrency']['date']+'. EUR is authoritative.\n\n'
  text+='\n'.join('- '+f['label']+': '+f['description'] for f in data['fields'])+'\n\n'
  f=p['futureReference'];n=f.get('milestoneConditionedEconomicReferenceEUR')
  text+='Milestone-conditioned reference: '+(money(n)+'; model change '+money(f['sensitivityDeltaEUR'])+'. '+f.get('targetMilestone','') if n is not None else 'Not established. '+f.get('reason',''))+'\n\nThis is a conditional model sensitivity, not a current asking price, forecast or market value.\n\n'
@@ -50,4 +54,5 @@ def brief_prices(asset,data):
  for id_ in p['sourceIds']:
   s=next(s for s in data['sources'] if s['id']==id_);text+='- ['+s['publisher']+' - '+s['title']+']('+s['url']+'): '+s['application']+'\n'
  fx=data['displayCurrency'];text+='\nIndicative USD conversion: EUR 1 = USD '+str(fx['rate'])+'; ECB '+fx['date']+'. EUR remains authoritative.\n\nFull pricing method and source register: '+HUB+'valuation.html#methodology\n\n'
+ text+='Calculation inputs: '+json.dumps(p['calculationInputs'],ensure_ascii=False)+'.\n\nCalculation validation: '+HUB+'proof.html\n\nAsset-specific formulas: '+asset['profileUrl']+'#calculation\n\n'
  return text
