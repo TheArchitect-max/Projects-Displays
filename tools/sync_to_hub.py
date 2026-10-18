@@ -11,7 +11,7 @@ def main():
  destination=hub/'displays'
  if destination.exists():shutil.rmtree(destination)
  destination.mkdir()
- for name in ['index.html','acquisition.html','methodology.html','sources.html','404.html','robots.txt','sitemap.xml','catalogue.csv','project-map.json','PRESENTATION_NOTICE.txt','.nojekyll']:
+ for name in ['index.html','acquisition.html','methodology.html','sources.html','404.html','robots.txt','sitemap.xml','catalogue.csv','identity-register.csv','project-map.json','PRESENTATION_NOTICE.txt','.nojekyll']:
   if (source/name).exists():shutil.copy2(source/name,destination/name)
  for name in ['assets','products']:shutil.copytree(source/name,destination/name)
  print('Synchronized 108 approved buyer presentations and their public information files.')
