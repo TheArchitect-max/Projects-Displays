@@ -18,7 +18,7 @@ def validate(hub):
  prices=json.loads((ROOT/'assets/pricing-catalogue.json').read_text());assert prices==json.loads((hub/'assets/pricing-catalogue.json').read_text());
  d=json.loads((ROOT/'assets/buyer-catalogue.json').read_text());assert d==json.loads((hub/'assets/buyer-catalogue.json').read_text());mapping=json.loads((ROOT/'project-map.json').read_text());assert len(mapping['projects'])==108
  assert set(mapping)=={'schema','projectCount','projects'}
- allowed={'ref','title','slug','displaySlug','productPage','url','profileUrl','factsheetUrl','briefUrl'}
+ allowed={'ref','referenceName','title','slug','displaySlug','productPage','url','profileUrl','factsheetUrl','briefUrl'}
  for m in mapping['projects']:assert set(m)==allowed
  assert not (ROOT/'source-register.csv').exists() and not (ROOT/'docs').exists();assert not list(ROOT.glob('.github/workflows/*'))
  catalogue=list(csv.DictReader((ROOT/'catalogue.csv').open(encoding='utf-8-sig')));assert len(catalogue)==108
