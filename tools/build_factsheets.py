@@ -29,7 +29,7 @@ def main():
  count=0
  for a in data['projects']:
   if args.refs and a['ref'] not in args.refs:continue
-  text=a['title'].replace('Spatial-Computing','Spatial-\nComputing') if a['ref']=='TA-IP-108' else a['title']
+  text=a['title'].replace('Spatial-Computing','Spatial-\nComputing') if a['ref']=='TA-IP-107' else a['title']
   story=[p(a['ref']+' / '+a['referenceName']+' / INDEPENDENT IP ASSET',small),p(text,title),p(a['summary']),p('Product overview',heading),p(a['overview']),p('Potential acquirers',heading)]+lines(a['potentialBuyers'])
   story+=[p('Documented functions',heading)]+lines(a['capabilities'])
   story+=[p('Available output types',heading),p(' / '.join(a['outputTypes'])),p(cats[a['categoryId']]['title'],small),PageBreak()]
