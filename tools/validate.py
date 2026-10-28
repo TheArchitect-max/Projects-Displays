@@ -16,13 +16,13 @@ class Page(HTMLParser):
   if t=='a' and a.get('href'):self.links.append(a['href'])
 def validate(hub):
  prices=json.loads((ROOT/'assets/pricing-catalogue.json').read_text());assert prices==json.loads((hub/'assets/pricing-catalogue.json').read_text());
- d=json.loads((ROOT/'assets/buyer-catalogue.json').read_text());assert d==json.loads((hub/'assets/buyer-catalogue.json').read_text());mapping=json.loads((ROOT/'project-map.json').read_text());assert len(mapping['projects'])==111
+ d=json.loads((ROOT/'assets/buyer-catalogue.json').read_text());assert d==json.loads((hub/'assets/buyer-catalogue.json').read_text());mapping=json.loads((ROOT/'project-map.json').read_text());assert len(mapping['projects'])==110
  assert set(mapping)=={'schema','projectCount','projects'}
  allowed={'ref','referenceName','title','slug','displaySlug','productPage','url','profileUrl','factsheetUrl','briefUrl'}
  for m in mapping['projects']:assert set(m)==allowed
  assert not (ROOT/'source-register.csv').exists() and not (ROOT/'docs').exists();assert not list(ROOT.glob('.github/workflows/*'))
- catalogue=list(csv.DictReader((ROOT/'catalogue.csv').open(encoding='utf-8-sig')));assert len(catalogue)==111
- index=(ROOT/'index.html').read_text();destinations=Counter(x for x in Page(index).links if x.startswith('products/'));assert len(destinations)==111 and set(destinations.values())=={1}
+ catalogue=list(csv.DictReader((ROOT/'catalogue.csv').open(encoding='utf-8-sig')));assert len(catalogue)==110
+ index=(ROOT/'index.html').read_text();destinations=Counter(x for x in Page(index).links if x.startswith('products/'));assert len(destinations)==110 and set(destinations.values())=={1}
  count=0
  for a in d['projects']:
   folder=ROOT/'products'/a['slug'];text=(folder/'index.html').read_text();p=Page(text);assert p.body['data-project-ref']==a['ref'];assert 'Potential acquirers' in text
@@ -45,6 +45,6 @@ def validate(hub):
    url=urlparse(urljoin('https://thearchitect-max.github.io/MyProjects/displays/'+p.name,link))
    if url.netloc!='thearchitect-max.github.io':continue
    target=hub/unquote(url.path.removeprefix('/MyProjects/'));target=target/'index.html' if url.path.endswith('/') else target;assert target.is_file(),(p,link)
- return dict(result='PASS',buyerDisplays=count,factsheets=count,pdfPages=count*3,productBriefs=count,uniqueCollectionEntries=111,duplicateCollectionEntries=0,currentAskingPlaques=111,mirroredFiles=mirrored)
+ return dict(result='PASS',buyerDisplays=count,factsheets=count,pdfPages=count*3,productBriefs=count,uniqueCollectionEntries=110,duplicateCollectionEntries=0,currentAskingPlaques=110,mirroredFiles=mirrored)
 if __name__=='__main__':
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('hub',type=Path);a=p.parse_args();print(json.dumps(validate(a.hub.resolve()),indent=2))
