@@ -1,10 +1,10 @@
 # THEARCHITECT_MAX - Project display library
 
-[Open all project displays](https://thearchitect-max.github.io/MyProjects/displays/) or return to the [acquisition portfolio](https://thearchitect-max.github.io/MyProjects/). This repository supplies the 112 static displays, downloadable buyer documents and public catalogue mirrored in the portfolio.
+[Open all project displays](https://thearchitect-max.github.io/MyProjects/displays/) or return to the [acquisition portfolio](https://thearchitect-max.github.io/MyProjects/). This repository supplies the 116 static displays, downloadable buyer documents and public catalogue mirrored in the portfolio.
 
 ## Asset identity and information
 
-The public catalogue contains 112 individually identified software and research IP assets. Each asset has one current TA-IP reference, canonical project title and feminine reference name. Individual presentations link to the asset dossier, factsheet PDF and product brief. Compatibility routes preserve earlier links without creating additional assets. Public repositories, publication infrastructure and seller-excluded literary archives are excluded from the asset count. All 112 current catalogue identities are linked to verified private source identities.
+The public catalogue contains 116 individually identified software and research IP assets. Each asset has one current TA-IP reference, canonical project title and feminine reference name. Individual presentations link to the asset dossier, factsheet PDF and product brief. Compatibility routes preserve earlier links without creating additional assets. Public repositories, publication infrastructure and seller-excluded literary archives are excluded from the asset count. All 116 current catalogue identities are linked to verified private source identities.
 
 ## Financial references
 
