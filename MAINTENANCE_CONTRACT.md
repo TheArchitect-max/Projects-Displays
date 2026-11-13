@@ -3,7 +3,7 @@
 
 ## Ownership and source perimeter
 
-Canonical public publication: TheArchitect-max/MyProjects, approved snapshot commit 28f29a547d0a753825e09c1e80ba75ac81014515.
+Canonical public publication: TheArchitect-max/MyProjects, approved snapshot commit 32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916.
 
 Mirror: TheArchitect-max/Projects-Displays. Copy only public files under MyProjects/displays/. Never copy private source code, evaluation credentials, personal data or unlicensed third-party material to this publication.
 

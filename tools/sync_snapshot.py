@@ -12,7 +12,7 @@ import shutil
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-HUB_SHA = "28f29a547d0a753825e09c1e80ba75ac81014515"
+HUB_SHA = "32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916"
 ROOT_FILES = (
     "index.html", "acquisition.html", "methodology.html", "sources.html",
     "404.html", "robots.txt", "sitemap.xml", "catalogue.csv",

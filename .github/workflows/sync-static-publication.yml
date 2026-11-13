@@ -31,8 +31,8 @@ jobs:
         shell: bash
         run: |
           git clone --filter=blob:none https://github.com/TheArchitect-max/MyProjects.git /tmp/myprojects-source
-          git -C /tmp/myprojects-source checkout --detach 28f29a547d0a753825e09c1e80ba75ac81014515
-          test "$(git -C /tmp/myprojects-source rev-parse HEAD)" = "28f29a547d0a753825e09c1e80ba75ac81014515"
+          git -C /tmp/myprojects-source checkout --detach 32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916
+          test "$(git -C /tmp/myprojects-source rev-parse HEAD)" = "32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916"
       - name: Validate 123-asset snapshot without writing
         run: |
           python3 tools/sync_snapshot.py /tmp/myprojects-source

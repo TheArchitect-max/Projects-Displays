@@ -19,7 +19,7 @@ import subprocess
 from pypdf import PdfReader
 
 ROOT = Path(__file__).resolve().parents[1]
-PIN = "28f29a547d0a753825e09c1e80ba75ac81014515"
+PIN = "32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916"
 EXPECTED_COUNT = 123
 EXPECTED_SELLER_TOTAL = 25153000
 EXPECTED_MIRROR_FILES = 430

@@ -12,7 +12,7 @@ The published total of **EUR 25,153,000** is the sum of 123 individual **seller 
 
 **MyProjects owns the canonical public publication; Projects-Displays mirrors its approved content.** Approved hub SHA:
 
-28f29a547d0a753825e09c1e80ba75ac81014515
+32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916
 
 The mirror contains **430 SHA-256-matching public files**, comprising all static publication data, 123 complete buyer presentations with PDF factsheets and briefs, and historical redirects. See [initial snapshot audit](PUBLICATION_AUDIT_2026-11-13.md).
 
