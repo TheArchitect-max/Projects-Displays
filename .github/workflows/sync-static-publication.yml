@@ -1,0 +1,38 @@
+name: Static publication sync (one-shot candidate CI)
+on:
+  push:
+    branches:
+      - portfolio/sync-123-assets-20261113
+    paths:
+      - .github/workflows/sync-static-publication.yml
+permissions:
+  contents: write
+jobs:
+  sync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Checkout candidate branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Retrieve pinned public hub source
+        shell: bash
+        run: |
+          git clone --filter=blob:none https://github.com/TheArchitect-max/MyProjects.git /tmp/myprojects-source
+          git -C /tmp/myprojects-source checkout --detach 28f29a547d0a753825e09c1e80ba75ac81014515
+          test "$(git -C /tmp/myprojects-source rev-parse HEAD)" = "28f29a547d0a753825e09c1e80ba75ac81014515"
+      - name: Synchronise and verify all 123 static displays
+        run: python3 tools/sync_snapshot.py /tmp/myprojects-source
+      - name: Commit synced public snapshot to candidate (never main)
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- assets products index.html acquisition.html methodology.html sources.html 404.html robots.txt sitemap.xml catalogue.csv identity-register.csv project-map.json PRESENTATION_NOTICE.txt .nojekyll PUBLICATION_AUDIT_2026-11-13.md
+          if git diff --cached --quiet; then
+            echo "No publication changes required"
+          else
+            git commit -m "chore(publication): pin full 123-asset static mirror"
+            git push origin HEAD:refs/heads/portfolio/sync-123-assets-20261113
+          fi
