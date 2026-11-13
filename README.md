@@ -1,25 +1,23 @@
-# THEARCHITECT_MAX - Project display library
+# THEARCHITECT_MAX — Project Displays
 
-[Open all project displays](https://thearchitect-max.github.io/MyProjects/displays/) or return to the [acquisition portfolio](https://thearchitect-max.github.io/MyProjects/). This repository supplies the 119 static displays, downloadable buyer documents and public catalogue mirrored in the portfolio.
+**Public static software-IP asset display library.** The canonical published experience is [MyProjects / Project Displays](https://thearchitect-max.github.io/MyProjects/displays/).
 
-## Asset identity and information
+## Portfolio baseline
 
-The public catalogue contains 119 individually identified software and research IP assets. Each asset has one current TA-IP reference, canonical project title and feminine reference name. Individual presentations link to the asset dossier, factsheet PDF and product brief. Compatibility routes preserve earlier links without creating additional assets. Public repositories, publication infrastructure and seller-excluded literary archives are excluded from the asset count. All 119 current catalogue identities are linked to verified private source identities.
+As of **13 November 2026**, the current canonical public hub documents **123 independently scoped software/research assets** (TA-IP-001–TA-IP-123). Each has an individually assigned title, alias, factsheet, buyer brief, project page and seller asking reference. The 126 known repository identities include 123 private project repositories and three separate publication/acquisition support repositories. TA-IP-122 and TA-IP-123 still carry provisional portfolio aliases; do not state that those aliases are confirmed by source-side records.
 
-## Financial references
+The **individual seller asking references total EUR 25,153,000**, according to the dated 10 November 2026 pricing review. This is a sum of reference prices, **not** an agreed bundle price, market appraisal, revenue forecast or transaction agreement. Differences in subsequent development commits must not silently revise financial assumptions or advertised production readiness.
 
-All eight financial references are presented in EUR and indicative USD, with a dated exchange rate, stated cost assumptions, conditional scenarios and reproducible arithmetic. Individual asking references are seller inputs. Recreation estimates are assumed equivalent engineering costs, not recorded expenditure or an absolute minimum. Market value is not established; final consideration depends on the agreed work, rights and delivery. Portfolio totals are sums of individual references, not an agreed package price.
+## Publication source and controlled refresh
 
-## Controlled acquisition review
+The canonical publication source is [MyProjects](https://github.com/TheArchitect-max/MyProjects) at pinned commit `28f29a547d0a753825e09c1e80ba75ac81014515`. The publication files under its `displays/` directory are mirrored byte-for-byte into this repository by `python3 tools/sync_snapshot.py /path/to/pinned/MyProjects`. The script fails closed on a different source commit and checks all 123 identities, asking-price total, product pages, PDF headers and mirrored file SHA-256 hashes. See [publication verification](PUBLICATION_AUDIT_2026-11-13.md) once the mirror has been fully validated.
 
-Public product information supports initial screening. Confidential source, detailed validation, component, security and rights evidence is reviewed under agreed confidentiality. A transfer covers only expressly agreed first-party work and transferable rights. Third-party software, models, datasets, content and service entitlements retain their own terms. Delivery, recipient acceptance and any further work require separate written scope.
+The workflow in `.github/workflows/sync-static-publication.yml` is restricted to the candidate branch and now performs **read-only, exact-source publication verification** after the one-time synchronisation. It is not a hosted product, application backend, scheduled worker or payments runtime. The older `tools/build_showroom.py`, factsheet builders and `tools/validate.py` reflect an earlier 119-asset generation scheme and must not be used to overwrite the 123-asset canonical publication until the generators and validators are separately migrated and verified.
 
-Connections describe proposed workflows, not delivered integrations or additional assets. The separate “Strategic fit · Company-specific opportunities” analysis links existing assets to factual business contexts and the central Sources register. Independent seller-authored analysis. No affiliation, endorsement, commissioning or buyer interest is claimed. The visual-effects platform remains standalone.
+## Buyer and rights boundary
 
-## Publication and verification
+The publication offers information for prospective buyer due diligence; it does **not** run any of the underlying products. It has no user database, user sessions, authentication, payments or SaaS server. A transfer requires a separate agreement identifying first-party rights, exact software edition, delivery manifest, component and third-party obligations, acceptance and price. Third-party materials remain subject to their own rights; viewing a presentation conveys no licence.
 
-The website is a static acquisition presentation. It does not run the underlying products, host accounts, submit enquiries or process payments. Enquiry controls prepare drafts locally. The original visual style, artwork and optional music remain part of the presentation.
-
-Repository tools verify identity consistency, documents, complete prices, disclosed arithmetic, sources, public disclosure boundaries and internal links. Website checks do not independently certify the underlying products or establish legal title, market value or production acceptance.
+Publication checks do not certify clinical, scientific or engineering performance, production deployment, independent review, legal title or independent market valuation. The seller retains full control over first-party IP and maintains repository isolation.
 
 © 2026 THEARCHITECT_MAX. First-party rights reserved.
