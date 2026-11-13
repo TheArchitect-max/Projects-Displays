@@ -1,23 +1,49 @@
-# THEARCHITECT_MAX — Project Displays
+# THEARCHITECT_MAX — Projects-Displays
 
-**Public static software-IP asset display library.** The canonical published experience is [MyProjects / Project Displays](https://thearchitect-max.github.io/MyProjects/displays/).
+**Static publication library for 123 independently identified software and research IP assets.** View the official [project exhibition](https://thearchitect-max.github.io/MyProjects/displays/) or the [canonical public portfolio source](https://github.com/TheArchitect-max/MyProjects).
 
-## Portfolio baseline
+## Current public register and scope
 
-As of **13 November 2026**, the current canonical public hub documents **123 independently scoped software/research assets** (TA-IP-001–TA-IP-123). Each has an individually assigned title, alias, factsheet, buyer brief, project page and seller asking reference. The 126 known repository identities include 123 private project repositories and three separate publication/acquisition support repositories. TA-IP-122 and TA-IP-123 still carry provisional portfolio aliases; do not state that those aliases are confirmed by source-side records.
+The portfolio register covers **TA-IP-001 through TA-IP-123**, with a distinct reference alias, canonical title and private project source identity for every listed asset. The additional three GitHub repositories are publication or acquisition infrastructure, not offered product assets. TA-IP-122 and TA-IP-123 retain **provisional portfolio aliases** rather than confirmed source-side aliases. Historical compatibility URLs are redirects, not additional IP assets.
 
-The **individual seller asking references total EUR 25,153,000**, according to the dated 10 November 2026 pricing review. This is a sum of reference prices, **not** an agreed bundle price, market appraisal, revenue forecast or transaction agreement. Differences in subsequent development commits must not silently revise financial assumptions or advertised production readiness.
+The published total of **EUR 25,153,000** is the sum of 123 individual **seller asking references**, dated **10 November 2026**. It is not a negotiated bundle price, independent market appraisal or revenue projection. The displayed EUR/USD information uses the published 10 November 2026 rate. Subsequent repository activity does not automatically expand the published edition, software maturity or seller price.
 
-## Publication source and controlled refresh
+## One canonical publication, one verified mirror
 
-The canonical publication source is [MyProjects](https://github.com/TheArchitect-max/MyProjects) at pinned commit `28f29a547d0a753825e09c1e80ba75ac81014515`. The publication files under its `displays/` directory are mirrored byte-for-byte into this repository by `python3 tools/sync_snapshot.py /path/to/pinned/MyProjects`. The script fails closed on a different source commit and checks all 123 identities, asking-price total, product pages, PDF headers and mirrored file SHA-256 hashes. See [publication verification](PUBLICATION_AUDIT_2026-11-13.md) once the mirror has been fully validated.
+**MyProjects owns the canonical public publication; Projects-Displays mirrors its approved content.** Approved hub SHA:
 
-The workflow in `.github/workflows/sync-static-publication.yml` is restricted to the candidate branch and now performs **read-only, exact-source publication verification** after the one-time synchronisation. It is not a hosted product, application backend, scheduled worker or payments runtime. The older `tools/build_showroom.py`, factsheet builders and `tools/validate.py` reflect an earlier 119-asset generation scheme and must not be used to overwrite the 123-asset canonical publication until the generators and validators are separately migrated and verified.
+28f29a547d0a753825e09c1e80ba75ac81014515
 
-## Buyer and rights boundary
+The mirror contains **430 SHA-256-matching public files**, comprising all static publication data, 123 complete buyer presentations with PDF factsheets and briefs, and historical redirects. See [initial snapshot audit](PUBLICATION_AUDIT_2026-11-13.md).
 
-The publication offers information for prospective buyer due diligence; it does **not** run any of the underlying products. It has no user database, user sessions, authentication, payments or SaaS server. A transfer requires a separate agreement identifying first-party rights, exact software edition, delivery manifest, component and third-party obligations, acceptance and price. Third-party materials remain subject to their own rights; viewing a presentation conveys no licence.
+With a checkout of MyProjects at that exact SHA, run these read-only checks:
 
-Publication checks do not certify clinical, scientific or engineering performance, production deployment, independent review, legal title or independent market valuation. The seller retains full control over first-party IP and maintains repository isolation.
+~~~sh
+python3 -m pip install pypdf==5.9.0
+python3 tools/sync_snapshot.py /path/to/MyProjects
+python3 tools/build_showroom.py /path/to/MyProjects
+python3 tools/build_factsheets.py /path/to/MyProjects
+python3 tools/sync_to_hub.py /path/to/MyProjects
+node tools/build_calculation_check.cjs
+python3 tools/validate.py /path/to/MyProjects
+~~~
+
+All commands are **read-only by default**. To intentionally mirror a newly reviewed and pinned public hub commit on a controlled candidate branch, update the source pin and expectations with evidence, then execute:
+
+~~~sh
+python3 tools/sync_snapshot.py /path/to/MyProjects --write
+~~~
+
+The compatibility names build_showroom.py and build_factsheets.py mirror the **whole approved snapshot** with an explicit --write. They no longer regenerate stale 119-asset HTML or obsolete three-page PDFs. The sync_to_hub.py compatibility command does **not** write to the canonical MyProjects repository.
+
+## CI and maintenance
+
+The [publication maintenance contract](MAINTENANCE_CONTRACT.md) specifies review boundaries and acceptance steps. The reusable GitHub Actions workflow performs **CI validation only**. It checks every identity, eight per-asset financial fields, four-page PDF contents, product descriptions and briefs, links, aliases, source hashes and a clean working tree. It does not operate a product server, user accounts, sessions, database, commerce platform or payment processor.
+
+## Buyer scope, qualification and rights
+
+Public viewing provides no software runtime, IP access, licence, rights transfer or sales contract. An acquisition requires a separate written agreement on specific first-party rights, edition, component obligations, third-party materials, delivery and buyer acceptance.
+
+Static publication PASS does not prove independently appraised market value, source-code title, external scientific results, medical qualification, production security, commercial traction or deployment readiness. The 123-asset catalogue is a **dated commercial publication**, not a live release register for every separate proprietary software project.
 
 © 2026 THEARCHITECT_MAX. First-party rights reserved.
