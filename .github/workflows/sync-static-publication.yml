@@ -1,33 +1,52 @@
-name: Static publication sync (one-shot candidate CI)
+name: Validate 123-asset public publication
+
 on:
   push:
     branches:
-      - portfolio/sync-123-assets-20261113
-    paths:
-      - .github/workflows/sync-static-publication.yml
+      - maintenance/123-asset-toolchain-consistency-20261113
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
 permissions:
   contents: read
+
 jobs:
-  sync:
+  validate:
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 18
     steps:
-      - name: Checkout candidate branch
+      - name: Checkout exact candidate source
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-      - name: Retrieve pinned public hub source
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Verify Python and JavaScript tooling
+        run: |
+          python3 --version
+          node --version
+          python3 -m pip install --disable-pip-version-check pypdf==5.9.0
+      - name: Retrieve the approved public source at its frozen commit
         shell: bash
         run: |
           git clone --filter=blob:none https://github.com/TheArchitect-max/MyProjects.git /tmp/myprojects-source
           git -C /tmp/myprojects-source checkout --detach 28f29a547d0a753825e09c1e80ba75ac81014515
           test "$(git -C /tmp/myprojects-source rev-parse HEAD)" = "28f29a547d0a753825e09c1e80ba75ac81014515"
-      - name: Synchronise and verify all 123 static displays
-        run: python3 tools/sync_snapshot.py /tmp/myprojects-source
-      - name: Confirm candidate matches the pinned source without writes
+      - name: Validate 123-asset snapshot without writing
+        run: |
+          python3 tools/sync_snapshot.py /tmp/myprojects-source
+          python3 tools/build_showroom.py /tmp/myprojects-source
+          python3 tools/build_factsheets.py /tmp/myprojects-source
+          python3 tools/sync_to_hub.py /tmp/myprojects-source
+      - name: Validate pricing arithmetic and tamper resistance
+        run: node tools/build_calculation_check.cjs
+      - name: Validate 123 HTML displays, 123 briefs, 492 PDF pages and links
+        run: python3 tools/validate.py /tmp/myprojects-source
+      - name: Assert every validation operation was read-only
         shell: bash
         run: |
-          git diff --exit-code -- assets products index.html acquisition.html methodology.html sources.html 404.html robots.txt sitemap.xml catalogue.csv identity-register.csv project-map.json PRESENTATION_NOTICE.txt .nojekyll PUBLICATION_AUDIT_2026-11-13.md
-          git status --porcelain --untracked-files=all | tee /tmp/publication-status.txt
-          test ! -s /tmp/publication-status.txt
-          echo "FINAL_CANDIDATE_VERIFICATION=PASS"
+          git diff --exit-code
+          git status --porcelain --untracked-files=all | tee /tmp/dirty-files
+          test ! -s /tmp/dirty-files
+          echo "PINNED_PUBLICATION_CONSISTENCY=PASS"
