@@ -1,7 +1,7 @@
 # Public display snapshot verification — 13 November 2026
 
-- Canonical public source: [MyProjects](https://github.com/TheArchitect-max/MyProjects/tree/28f29a547d0a753825e09c1e80ba75ac81014515/displays)
-- Pinned source commit: `28f29a547d0a753825e09c1e80ba75ac81014515`
+- Canonical public source: [MyProjects](https://github.com/TheArchitect-max/MyProjects/tree/32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916/displays)
+- Pinned source commit: `32af5dbb4bb7c9c261bd1d7e022341aaaa7bc916`
 - Assets: **123 distinct TA-IP identifiers**, each with unique slug and alias.
 - Public display documents: **123 HTML pages, 123 product briefs and 123 PDF files** checked.
 - Seller asking reference total: **EUR 25,153,000** (10 November 2026 seller inputs; not independently appraised).
